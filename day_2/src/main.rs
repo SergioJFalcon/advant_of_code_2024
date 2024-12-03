@@ -3,7 +3,7 @@ use std::io::BufReader;
 use std::fs::File;
 
 fn main() -> std::io::Result<()> {
-    let f: File = std::fs::File::open("data.txt")?;
+    let f: File = std::fs::File::open("example.txt")?;
     let reader: BufReader<File> = BufReader::new(f);
 
     let mut safe_count: i32 = 0;
@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
           // println!("Current safe_count: {}", safe_count);
         } else {
           unsafe_count += 1;
-          println!("\t{:?} - {}", numbers, is_seq_safe);
+          // println!("\n\tXXX - {:?} - {}", numbers, is_seq_safe);
         }
     }
 
@@ -40,11 +40,12 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
     let mut problem_index: usize = 0;
 
 
-    if problems_counter > 0 {
-      println!("\t\t{:?} - counter: {}", set_of_nums, problems_counter);
-    }
+    // if problems_counter > 0 {
+    //   println!("\t\t{:?} - counter: {}", set_of_nums, problems_counter);
+    // }
 
     if problems_counter > 1 {
+      // println!("\n\t\t*****{:?} - counter: {}*****\n", set_of_nums, problems_counter);
       return false;
     }
 
@@ -68,7 +69,9 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
             //  its suppose to be increasing, but we found a decrease
             is_safe = false;
             problems_counter += 1;
-            problem_index = i;
+            if problems_counter == 1 {
+              problem_index = i;
+            }
             continue;
         }
 
@@ -76,7 +79,9 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
             //  its suppose to be decreasing, but we found an increase
             is_safe = false;
             problems_counter += 1;
-            problem_index = i;
+            if problems_counter == 1 {
+              problem_index = i;
+            }
             continue;
         }
         
@@ -84,7 +89,9 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
             // all numbers are decreasing by more than 1
             is_safe = false;
             problems_counter += 1;
-            problem_index = i;
+            if problems_counter == 1 {
+              problem_index = i;
+            }
             continue;
         }
     }
@@ -94,24 +101,24 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
         return true;
     } else {
       // its not safe, but if problems counter is 1, re-run it while removing that number
-      println!("{:?} problems_counter: {}", set_of_nums,  problems_counter);
       if problems_counter == 1 {
+        println!("\t\t{:?} problems_counter: {}", set_of_nums,  problems_counter);
         // let new_set_of_nums = set_of_nums.copy_within(0..problem_index, problem_index);
         let problem_num: i32 = set_of_nums.remove(problem_index);
         println!("\t\t{}", problem_num);
-        println!("\t\tUpdated set of nums: {:?}", set_of_nums);
+        println!("\t\t\tUpdated set of nums: {:?}", set_of_nums);
 
         
         let final_check: bool = check_for_safe_sequence(set_of_nums, problems_counter);
-        println!("\t\t\tfinal_check: {}", final_check);
+        println!("\t\t\t\tfinal_check: {}", final_check);
 
         if final_check {
           return true;
         } else {
           return false;
         }
-        // return false;
       } else {
+        println!("ERROR - {:?} problems_counter: {}", set_of_nums,  problems_counter);
         return false;
       }
     }

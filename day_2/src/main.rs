@@ -3,7 +3,7 @@ use std::io::BufReader;
 use std::fs::File;
 
 fn main() -> std::io::Result<()> {
-    let f: File = std::fs::File::open("example.txt")?;
+    let f: File = std::fs::File::open("data.txt")?;
     let reader: BufReader<File> = BufReader::new(f);
 
     let mut safe_count: i32 = 0;
@@ -15,15 +15,28 @@ fn main() -> std::io::Result<()> {
         let numbers: Vec<i32> = line.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect();
         // must be increasing or decreasing in intervals of 1 or 3 to be safe, otherwise its unsafe
         // Check if the values in each line are either decreasing or increasing, if nots its unsafe
-        let is_seq_safe: bool = check_for_safe_sequence(numbers.clone(), 0);
+        // let is_seq_safe: bool = old_check_for_safe_sequence(numbers.clone(), 0);
+        let is_seq_safe: bool = check_safe(&numbers);
         
         
         if is_seq_safe {
           safe_count += 1;
           // println!("Current safe_count: {}", safe_count);
         } else {
-          unsafe_count += 1;
-          // println!("\n\tXXX - {:?} - {}", numbers, is_seq_safe);
+          // Check one more time if the sequence is safe by removing a single number from anywhere in the set
+          println!("Invalid at {:?}", &numbers);
+          for i in 0..numbers.len() {
+            let mut new_set_of_nums: Vec<i32> = numbers.to_vec();
+            new_set_of_nums.remove(i);
+            println!("\t\t{:?}", new_set_of_nums);
+            let final_check: bool = check_safe(&new_set_of_nums);
+            if final_check {
+              safe_count += 1;
+              break;
+            } else {
+              unsafe_count += 1;
+            }
+          }
         }
     }
 
@@ -32,8 +45,28 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+fn check_safe(set_of_nums: &[i32]) -> bool {
+    // Check to see if the list of numbers is safe i.e., is either all increasing or decreasing in steps between 1 and 3
+    let mut is_safe: bool = true;
 
-fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32) -> bool {
+    // determine the order i.e, increasing or decreasing
+    let asc: bool = set_of_nums.is_sorted_by(|a, b| a < b);
+    let desc: bool = set_of_nums.is_sorted_by(|a, b| a > b);
+
+    if asc || desc {
+      // Check if each value has a step between 1 and 3
+      let valid_steps: bool = set_of_nums.is_sorted_by(|a, b| (a - b).abs() < 4 && (a - b).abs() > 0);
+      // Remove the first problem number that appears i.e., violates the determined sorting order or not between the steps variance or 1 to 3 and re-run the check
+      
+      is_safe = valid_steps;
+    } else {
+      is_safe = false;
+    }
+
+    is_safe
+}
+
+fn _old_check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32) -> bool {
     // Check the set if its safe
     let mut is_safe: bool = true;
     let mut is_increasing: bool = false;
@@ -109,7 +142,7 @@ fn check_for_safe_sequence(mut set_of_nums: Vec<i32>, mut problems_counter: i32)
         println!("\t\t\tUpdated set of nums: {:?}", set_of_nums);
 
         
-        let final_check: bool = check_for_safe_sequence(set_of_nums, problems_counter);
+        let final_check: bool = _old_check_for_safe_sequence(set_of_nums, problems_counter);
         println!("\t\t\t\tfinal_check: {}", final_check);
 
         if final_check {

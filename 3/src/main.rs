@@ -10,7 +10,7 @@ fn main() {
 }
 
 fn _part_one() {
-  let f: File = std::fs::File::open("data.txt").expect("Could not open input file");
+    let f: File = std::fs::File::open("data.txt").expect("Could not open input file");
     let reader: BufReader<File> = BufReader::new(f);
     let mut total_sum: i64 = 0;
 
